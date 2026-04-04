@@ -31,7 +31,7 @@
 		"wholroyd.jinja",
 		"rangav.vscode-thunder-client"
 	],
-	// "postCreateCommand": "sudo pip install -r requirements.txt",
+	"postCreateCommand": "make venv install",
     "features": {
 	    "docker-in-docker": "latest",
 	    "kubectl-helm-minikube": "latest" 
