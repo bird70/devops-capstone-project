@@ -1,5 +1,7 @@
-# The Skills Network Cloud IDE uses Ubuntu 18.04 :(
-FROM ubuntu:18.04
+FROM ubuntu:22.04
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Add any tools that are needed
 RUN apt-get update && \
@@ -13,8 +15,12 @@ RUN apt-get update && \
         wget \
         jq \
         software-properties-common \
-        python3-pip \
-        python3-dev
+        python3.11 \
+        python3.11-venv \
+        python3.11-dev && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 && \
+    python3 -m ensurepip --upgrade
 
 # Installing K3D for local Kubernetes development
 RUN curl -s "https://raw.githubusercontent.com/rancher/k3d/main/install.sh" | sudo bash
