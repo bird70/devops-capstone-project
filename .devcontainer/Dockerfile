@@ -44,15 +44,19 @@ RUN set -eux; \
     chmod +x /usr/local/bin/tkn; \
     rm -f "tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"
 
-# Install OpenShift CLI (stable latest)
+# Install OpenShift CLI (latest stable via release metadata)
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "$ARCH" in \
-      amd64) OC_ARCH="amd64" ;; \
-      arm64) OC_ARCH="arm64" ;; \
+      amd64) OC_ARCH="x86_64" ;; \
+      arm64) OC_ARCH="aarch64" ;; \
       *) echo "Unsupported architecture: $ARCH"; exit 1 ;; \
     esac; \
-    curl -fsSLo /tmp/oc.tar.gz "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux-${OC_ARCH}.tar.gz"; \
+    OC_URL="$(curl -fsSL https://api.github.com/repos/openshift/okd/releases/latest \
+      | jq -r '.assets[] | select(.name | test("openshift-client-linux.*\\.tar\\.gz$")) | .browser_download_url' \
+      | head -n1)"; \
+    test -n "$OC_URL"; \
+    curl -fsSL "$OC_URL" -o /tmp/oc.tar.gz; \
     tar -xzf /tmp/oc.tar.gz -C /usr/local/bin oc kubectl; \
     chmod +x /usr/local/bin/oc /usr/local/bin/kubectl; \
     rm -f /tmp/oc.tar.gz
