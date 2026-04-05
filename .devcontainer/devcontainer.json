@@ -3,7 +3,7 @@
 	"name": "Cloud IDE",
 	"dockerFile": "Dockerfile",
 	"context": "..",
-	"remoteUser": "theia",
+	"remoteUser": "vscode",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"remoteEnv": {
 		"FLASK_DEBUG": "True"
@@ -35,7 +35,7 @@
 			}
 		}
 	},
-	"postCreateCommand": "make venv && make install",
+	"postCreateCommand": "make venv && make install && python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel && pip install --no-cache-dir pip-audit && pip-audit || true",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
