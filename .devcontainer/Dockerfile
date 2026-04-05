@@ -48,14 +48,14 @@ RUN set -eux; \
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "$ARCH" in \
-      amd64) OC_ARCH="linuxx86_64" ;; \
-      arm64) OC_ARCH="linuxarm64" ;; \
+      amd64) OC_ARCH="amd64" ;; \
+      arm64) OC_ARCH="arm64" ;; \
       *) echo "Unsupported architecture: $ARCH"; exit 1 ;; \
     esac; \
-    curl -fsSLO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/${OC_ARCH}/openshift-client-${OC_ARCH}.tar.gz"; \
-    tar -xzf "openshift-client-${OC_ARCH}.tar.gz" -C /usr/local/bin oc kubectl; \
+    curl -fsSLo /tmp/oc.tar.gz "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux-${OC_ARCH}.tar.gz"; \
+    tar -xzf /tmp/oc.tar.gz -C /usr/local/bin oc kubectl; \
     chmod +x /usr/local/bin/oc /usr/local/bin/kubectl; \
-    rm -f "openshift-client-${OC_ARCH}.tar.gz"
+    rm -f /tmp/oc.tar.gz
 
 WORKDIR /workspaces/${localWorkspaceFolderBasename}
 
