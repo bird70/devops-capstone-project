@@ -1,11 +1,12 @@
-FROM ubuntu:22.04
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Add any tools that are needed
+# Core tools + Python (no ensurepip on Ubuntu system Python)
 RUN apt-get update && \
-    apt-get install -y sudo \
+    apt-get install -y --no-install-recommends \
+        sudo \
         vim \
         make \
         git \
@@ -20,43 +21,48 @@ RUN apt-get update && \
         python3.11-venv \
         python3.11-dev && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Updated packaging toolchain
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Installing K3D for local Kubernetes development
-RUN curl -s "https://raw.githubusercontent.com/rancher/k3d/main/install.sh" | sudo bash
+RUN curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
-# Installing Tekton CLI
-RUN curl -LO https://github.com/tektoncd/cli/releases/download/v0.18.0/tkn_0.18.0_Linux_x86_64.tar.gz && \
-    tar xvzf tkn_0.18.0_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn && \
-    ln -s /usr/local/bin/tkn /usr/bin/tkn
+# Installing Tekton CLI (latest)
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "$ARCH" in \
+      amd64) TKN_ARCH="Linux_x86_64" ;; \
+      arm64) TKN_ARCH="Linux_arm64" ;; \
+      *) echo "Unsupported architecture: $ARCH"; exit 1 ;; \
+    esac; \
+    TKN_VERSION="$(curl -fsSL https://api.github.com/repos/tektoncd/cli/releases/latest | jq -r .tag_name | sed 's/^v//')"; \
+    curl -fsSLO "https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"; \
+    tar -xzf "tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz" -C /usr/local/bin tkn; \
+    chmod +x /usr/local/bin/tkn; \
+    rm -f "tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"
 
-# Install OpenShift CLI
-RUN curl -LO https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz && \
-    tar xvzf openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz && \
-    install openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc /usr/local/bin/oc && \
-    ln -s /usr/local/bin/oc /usr/bin/oc
+# Install OpenShift CLI (stable latest)
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "$ARCH" in \
+      amd64) OC_ARCH="linuxx86_64" ;; \
+      arm64) OC_ARCH="linuxarm64" ;; \
+      *) echo "Unsupported architecture: $ARCH"; exit 1 ;; \
+    esac; \
+    curl -fsSLO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/${OC_ARCH}/openshift-client-${OC_ARCH}.tar.gz"; \
+    tar -xzf "openshift-client-${OC_ARCH}.tar.gz" -C /usr/local/bin oc kubectl; \
+    chmod +x /usr/local/bin/oc /usr/local/bin/kubectl; \
+    rm -f "openshift-client-${OC_ARCH}.tar.gz"
 
-# Create a user for development
-ARG USERNAME=theia
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-# Create the user with passwordless sudo privileges
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
-    && usermod -aG sudo $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
-# Set up the Python development environment
-WORKDIR /home/project
-RUN python3 -m pip install --upgrade pip wheel
+WORKDIR /workspaces/${localWorkspaceFolderBasename}
 
 ENV PORT=8000
-EXPOSE $PORT
+EXPOSE 8000
 
 # Enable color terminal for docker exec bash
 ENV TERM=xterm-256color
 
-# Become a regular user
-USER $USERNAME
+# Do not set USER here; let devcontainer.json control remoteUser
