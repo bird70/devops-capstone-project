@@ -4,36 +4,40 @@
 	"dockerFile": "Dockerfile",
 	"context": "..",
 	"remoteUser": "theia",
-	"workspaceFolder": "/home/project",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/project,type=bind,consistency=delegated",
-    "runArgs": ["-h","theia", "--name", "capstone-project"],
-    "remoteEnv": {
-      "FLASK_DEBUG": "True"
-    },
-	"extensions": [
-		"VisualStudioExptTeam.vscodeintellicode",
-		"ms-python.python",
-		"ms-python.pylint",
-		"ms-python.vscode-pylance",
-		"alexkrechik.cucumberautocomplete",
-		"cstrap.flask-snippets",
-		"yzhang.markdown-all-in-one",
-		"bierner.github-markdown-preview",
-		"hnw.vscode-auto-open-markdown-preview",
-		"DavidAnson.vscode-markdownlint",
-		"donjayamanne.githistory",
-		"GitHub.vscode-pull-request-github",
-		"hbenl.vscode-test-explorer",
-		"LittleFoxTeam.vscode-python-test-adapter",
-		"njpwerner.autodocstring",
-		"redhat.vscode-yaml",
-		"streetsidesoftware.code-spell-checker",
-		"wholroyd.jinja",
-		"rangav.vscode-thunder-client"
-	],
-	"postCreateCommand": "make venv install",
-    "features": {
-	    "docker-in-docker": "latest",
-	    "kubectl-helm-minikube": "latest" 
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"remoteEnv": {
+		"FLASK_DEBUG": "True"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"VisualStudioExptTeam.vscodeintellicode",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"alexkrechik.cucumberautocomplete",
+				"cstrap.flask-snippets",
+				"yzhang.markdown-all-in-one",
+				"bierner.github-markdown-preview",
+				"hnw.vscode-auto-open-markdown-preview",
+				"DavidAnson.vscode-markdownlint",
+				"donjayamanne.githistory",
+				"GitHub.vscode-pull-request-github",
+				"hbenl.vscode-test-explorer",
+				"LittleFoxTeam.vscode-python-test-adapter",
+				"njpwerner.autodocstring",
+				"redhat.vscode-yaml",
+				"streetsidesoftware.code-spell-checker",
+				"wholroyd.jinja",
+				"rangav.vscode-thunder-client"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "~/venv/bin/python"
+			}
+		}
+	},
+	"postCreateCommand": "make venv && make install",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
 	}
 }

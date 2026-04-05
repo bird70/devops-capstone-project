@@ -16,11 +16,11 @@ RUN apt-get update && \
         jq \
         software-properties-common \
         python3.11 \
+        python3-pip \
         python3.11-venv \
         python3.11-dev && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 && \
-    python3 -m ensurepip --upgrade
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
 # Installing K3D for local Kubernetes development
 RUN curl -s "https://raw.githubusercontent.com/rancher/k3d/main/install.sh" | sudo bash
@@ -52,7 +52,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 WORKDIR /home/project
 RUN python3 -m pip install --upgrade pip wheel
 
-ENV PORT 8000
+ENV PORT=8000
 EXPOSE $PORT
 
 # Enable color terminal for docker exec bash
