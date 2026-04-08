@@ -5,6 +5,18 @@ All of the models are stored in this module
 """
 import logging
 from datetime import date
+import flask
+
+# Flask-SQLAlchemy 2.x expects flask._app_ctx_stack, removed in Flask 3.x.
+# Provide a minimal compatibility adapter so legacy labs can run on newer Flask.
+if not hasattr(flask, "_app_ctx_stack"):
+    class _AppCtxStackCompat:  # pylint: disable=too-few-public-methods
+        @property
+        def top(self):
+            return flask.g
+
+    flask._app_ctx_stack = _AppCtxStackCompat()
+
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
