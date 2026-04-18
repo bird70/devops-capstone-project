@@ -10,6 +10,7 @@
 	"settings": {
 		"chat.tools.terminal.autoApprove": {
 			"docker run": true
-		}
+		},
+		"makefile.configureOnOpen": false
 	}
 }

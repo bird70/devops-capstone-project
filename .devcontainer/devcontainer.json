@@ -11,7 +11,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"alexkrechik.cucumberautocomplete",
@@ -28,7 +27,8 @@
 				"redhat.vscode-yaml",
 				"streetsidesoftware.code-spell-checker",
 				"wholroyd.jinja",
-				"rangav.vscode-thunder-client"
+				"rangav.vscode-thunder-client",
+				"snyk-security.snyk-vulnerability-scanner"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "~/venv/bin/python"

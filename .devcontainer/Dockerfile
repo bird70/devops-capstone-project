@@ -13,6 +13,7 @@ RUN apt-get update && \
         zip \
         tree \
         curl \
+        xclip \
         wget \
         jq \
         software-properties-common \
